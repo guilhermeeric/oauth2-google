@@ -121,8 +121,18 @@ class Google extends AbstractProvider
     protected function createResourceOwner(array $response, AccessToken $token): GoogleUser
     {
         $user = new GoogleUser($response);
+        $checkDomain = new GoogleEmailDomainClaim([
+            'rdstation.com',
+            'rdstation-ext.com',
+        ]);
 
         $this->assertMatchingDomain($user->getHostedDomain());
+
+        try {
+            $checkDomain->check($user);
+        } catch (DomainException $e) {
+            exit($e->getMessage());
+        }
 
         return $user;
     }
